@@ -165,6 +165,12 @@ Please ensure the output is accurate and well-formatted according to the given e
     files = sorted(os.listdir(txt_dir))
 
     def process_file(file):
+        output_filename = f"{file.split('.')[0]}.json"
+        filepath = f"json/{output_filename}"
+
+        if os.path.exists(filepath):
+            return
+
         with open(f"{txt_dir}/{file}", "r") as f:
             text = f.read()
 
@@ -184,9 +190,7 @@ Please ensure the output is accurate and well-formatted according to the given e
                 top_p=1,
             )
 
-            output_filename = f"{file.split('.')[0]}.json"
-
-            with open(f"json/{output_filename}", "w") as f_out:
+            with open(filepath, "w") as f_out:
                 f_out.write(response.choices[0].message.content)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
