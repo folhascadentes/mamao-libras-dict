@@ -5,6 +5,7 @@ from openai import OpenAI
 import boto3
 import concurrent.futures
 import fitz
+import json
 import time
 
 # Utils
@@ -192,6 +193,21 @@ Please ensure the output is accurate and well-formatted according to the given e
         executor.map(process_file, files)
 
 
+def merge_json_files(dir_path):
+    merged_data = {}
+
+    for file in os.listdir(dir_path):
+        if file.endswith(".json"):
+            file_path = os.path.join(dir_path, file)
+
+            with open(file_path, "r") as f:
+                data = json.load(f)
+
+                merged_data.update(data)
+
+    return merged_data
+
+
 def main():
     print("Starting...")
     print("Converting PDFs to images...")
@@ -202,6 +218,12 @@ def main():
     raw_txt_to_formatted_txt("raw_texts")
     print("Converting formatted text to JSON...")
     formatted_txt_to_json("texts")
+    print("Merging JSON files...")
+    merged_data = merge_json_files("json")
+    print("Saving merged JSON file...")
+
+    with open("json/merged.json", "w") as f:
+        json.dump(merged_data, f)
 
 
 if __name__ == "__main__":
