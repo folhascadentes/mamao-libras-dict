@@ -8,7 +8,6 @@ Project to extract information of Libras signs from "Dicionário da Língua de S
 - Amazon SDK Environment Variables
 - OpenAI Environment Variables
 
-
 ## Example of output of each pipeline
 
 ### Book
