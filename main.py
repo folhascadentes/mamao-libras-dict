@@ -1,6 +1,7 @@
 import os
 
 from PIL import Image
+import boto3
 import fitz
 import pytesseract
 
@@ -27,6 +28,31 @@ def pdf_to_img(pdf_path):
     doc.close()
 
 
+def initialize_textract_client():
+    return boto3.client(
+        "textract",
+        region_name="us-east-1",
+    )
+
+
+def analyze_document(client, document_path):
+    with open(document_path, "rb") as document:
+        image_bytes = document.read()
+
+    response = client.analyze_document(
+        Document={"Bytes": image_bytes},
+        FeatureTypes=["LAYOUT"],
+    )
+
+    text = ""
+
+    for item in response["Blocks"]:
+        if item["BlockType"] == "LINE":
+            text += item["Text"] + "\n"
+
+    return text
+
+
 # Main functions
 
 
@@ -38,7 +64,15 @@ def pdfs_to_imgs(pdfs_dir):
 
 
 def imgs_to_txt(image_path):
-    pass
+    images = sorted(os.listdir(image_path))
+    client = initialize_textract_client()
+
+    for image in images:
+        text = analyze_document(client, f"{image_path}/{image}")
+        filename = f"{image.split('.')[0]}.txt"
+
+        with open(f"raw_texts/{filename}", "w") as f:
+            f.write(text)
 
 
 def raw_txt_to_formatted_txt(raw_txt):
@@ -50,8 +84,8 @@ def formatted_txt_to_json():
 
 
 def main():
-    pdfs_to_imgs("book")
-    imgs_to_txt("")
+    # pdfs_to_imgs("book")
+    imgs_to_txt("images")
     raw_txt_to_formatted_txt("")
     formatted_txt_to_json()
 
