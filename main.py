@@ -1,9 +1,11 @@
 import os
 
-from PIL import Image
-import boto3
-import fitz
+from botocore.exceptions import ClientError
 from openai import OpenAI
+import boto3
+import concurrent.futures
+import fitz
+import time
 
 # Utils
 
@@ -69,17 +71,34 @@ def imgs_to_txt(images_dir):
     images = sorted(os.listdir(images_dir))
     client = initialize_textract_client()
 
-    for image in images:
+    def process_image(image):
         filename = f"{image.split('.')[0]}.txt"
         filepath = f"raw_texts/{filename}"
 
         if os.path.exists(filepath):
-            continue
+            return
 
-        text = analyze_document(client, f"{images_dir}/{image}")
+        max_retries = 5  # Maximum number of retries
+        retry_delay = 1  # Initial retry delay in seconds
 
-        with open(f"raw_texts/{filename}", "w") as f:
-            f.write(text)
+        for _ in range(max_retries):
+            try:
+                text = analyze_document(client, f"{images_dir}/{image}")
+                with open(filepath, "w") as f:
+                    f.write(text)
+                break  # Break the loop if successful
+            except ClientError as e:
+                if (
+                    e.response["Error"]["Code"]
+                    == "ProvisionedThroughputExceededException"
+                ):
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                else:
+                    raise  # Reraise if a different exception occurred
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(process_image, images)
 
 
 def raw_txt_to_formatted_txt(raw_txt_dir):
