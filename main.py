@@ -60,29 +60,41 @@ def pdfs_to_imgs(pdfs_dir):
     files = sorted(os.listdir(pdfs_dir))
 
     for file in files:
-        pdf_to_img(f"{pdfs_dir}/{file}")
+        filepath = f"{pdfs_dir}/{file}"
+        if not os.path.exists(filepath):
+            pdf_to_img(filepath)
 
 
-def imgs_to_txt(image_path):
-    images = sorted(os.listdir(image_path))
+def imgs_to_txt(images_dir):
+    images = sorted(os.listdir(images_dir))
     client = initialize_textract_client()
 
     for image in images:
-        text = analyze_document(client, f"{image_path}/{image}")
         filename = f"{image.split('.')[0]}.txt"
+        filepath = f"raw_texts/{filename}"
+
+        if os.path.exists(filepath):
+            continue
+
+        text = analyze_document(client, f"{images_dir}/{image}")
 
         with open(f"raw_texts/{filename}", "w") as f:
             f.write(text)
 
 
-def raw_txt_to_formatted_txt(raw_txt):
+def raw_txt_to_formatted_txt(raw_txt_dir):
     client = OpenAI()
     system = """I have extracted text from various documents using OCR. The text is currently in a series of lines without proper paragraph formatting. Please format these lines into well-structured paragraphs."""
 
-    files = sorted(os.listdir(raw_txt))
+    files = sorted(os.listdir(raw_txt_dir))
 
-    for file in files[0:5]:
-        with open(f"{raw_txt}/{file}", "r") as f:
+    for file in files:
+        filepath = f"texts/{file}"
+
+        if os.path.exists(filepath):
+            continue
+
+        with open(f"{raw_txt_dir}/{file}", "r") as f:
             text = f.read()
 
             response = client.chat.completions.create(
@@ -101,7 +113,7 @@ def raw_txt_to_formatted_txt(raw_txt):
                 top_p=1,
             )
 
-            with open(f"texts/{file}", "w") as f:
+            with open(filepath, "w") as f:
                 f.write(response.choices[0].message.content)
 
 
@@ -152,7 +164,6 @@ Please ensure the output is accurate and well-formatted according to the given e
 
             with open(f"json/{output_filename}", "w") as f:
                 f.write(response.choices[0].message.content)
-
 
 
 def main():
