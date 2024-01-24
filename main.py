@@ -63,9 +63,9 @@ def pdfs_to_imgs(pdfs_dir):
     files = sorted(os.listdir(pdfs_dir))
 
     for file in files:
-        filepath = f"{pdfs_dir}/{file}"
-        if not os.path.exists(filepath):
-            pdf_to_img(filepath)
+        file_path = f"{pdfs_dir}/{file}"
+        if not os.path.exists(file_path):
+            pdf_to_img(file_path)
 
 
 def imgs_to_txt(images_dir):
@@ -74,9 +74,9 @@ def imgs_to_txt(images_dir):
 
     def process_image(image):
         filename = f"{image.split('.')[0]}.txt"
-        filepath = f"raw_texts/{filename}"
+        file_path = f"raw_texts/{filename}"
 
-        if os.path.exists(filepath):
+        if os.path.exists(file_path):
             return
 
         max_retries = 5  # Maximum number of retries
@@ -85,7 +85,7 @@ def imgs_to_txt(images_dir):
         for _ in range(max_retries):
             try:
                 text = analyze_document(client, f"{images_dir}/{image}")
-                with open(filepath, "w") as f:
+                with open(file_path, "w") as f:
                     f.write(text)
                 break  # Break the loop if successful
             except ClientError as e:
@@ -109,9 +109,9 @@ def raw_txt_to_formatted_txt(raw_txt_dir):
     files = sorted(os.listdir(raw_txt_dir))
 
     def process_file(file):
-        filepath = f"texts/{file}"
+        file_path = f"texts/{file}"
 
-        if os.path.exists(filepath):
+        if os.path.exists(file_path):
             return
 
         with open(f"{raw_txt_dir}/{file}", "r") as f:
@@ -133,7 +133,7 @@ def raw_txt_to_formatted_txt(raw_txt_dir):
                 top_p=1,
             )
 
-            with open(filepath, "w") as f_out:
+            with open(file_path, "w") as f_out:
                 f_out.write(response.choices[0].message.content)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
@@ -166,9 +166,9 @@ Please ensure the output is accurate and well-formatted according to the given e
 
     def process_file(file):
         output_filename = f"{file.split('.')[0]}.json"
-        filepath = f"json/{output_filename}"
+        file_path = f"json/{output_filename}"
 
-        if os.path.exists(filepath):
+        if os.path.exists(file_path):
             return
 
         with open(f"{txt_dir}/{file}", "r") as f:
@@ -190,7 +190,7 @@ Please ensure the output is accurate and well-formatted according to the given e
                 top_p=1,
             )
 
-            with open(filepath, "w") as f_out:
+            with open(file_path, "w") as f_out:
                 f_out.write(response.choices[0].message.content)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
