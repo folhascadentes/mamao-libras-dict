@@ -107,11 +107,11 @@ def raw_txt_to_formatted_txt(raw_txt_dir):
 
     files = sorted(os.listdir(raw_txt_dir))
 
-    for file in files:
+    def process_file(file):
         filepath = f"texts/{file}"
 
         if os.path.exists(filepath):
-            continue
+            return
 
         with open(f"{raw_txt_dir}/{file}", "r") as f:
             text = f.read()
@@ -132,8 +132,11 @@ def raw_txt_to_formatted_txt(raw_txt_dir):
                 top_p=1,
             )
 
-            with open(filepath, "w") as f:
-                f.write(response.choices[0].message.content)
+            with open(filepath, "w") as f_out:
+                f_out.write(response.choices[0].message.content)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        executor.map(process_file, files)
 
 
 def formatted_txt_to_json(txt):
@@ -186,9 +189,14 @@ Please ensure the output is accurate and well-formatted according to the given e
 
 
 def main():
+    print("Starting...")
+    print("Converting PDFs to images...")
     pdfs_to_imgs("book")
+    print("Converting images to text...")
     imgs_to_txt("images")
+    print("Converting raw text to formatted text...")
     raw_txt_to_formatted_txt("raw_texts")
+    print("Converting formatted text to JSON...")
     formatted_txt_to_json("texts")
 
 
