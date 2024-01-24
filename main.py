@@ -139,7 +139,7 @@ def raw_txt_to_formatted_txt(raw_txt_dir):
         executor.map(process_file, files)
 
 
-def formatted_txt_to_json(txt):
+def formatted_txt_to_json(txt_dir):
     client = OpenAI()
     system = """
 Process the provided text excerpts to create a structured JSON object. Each entry in the JSON should represent a sign from Brazilian Sign Language (Libras), as described in the text. For each entry, the key should be the name of the sign, and the value should be a detailed description of the sign, including its meaning and physical gesture. Exclude any text that is not directly related to the description of the signs. Ensure that the JSON output is well-formatted and adheres to standard JSON syntax rules.
@@ -160,10 +160,11 @@ A structured JSON object where each key-value pair represents a sign and its des
 
 Please ensure the output is accurate and well-formatted according to the given example and standard JSON syntax.
 """
-    files = sorted(os.listdir(txt))
 
-    for file in files[0:5]:
-        with open(f"{txt}/{file}", "r") as f:
+    files = sorted(os.listdir(txt_dir))
+
+    def process_file(file):
+        with open(f"{txt_dir}/{file}", "r") as f:
             text = f.read()
 
             response = client.chat.completions.create(
@@ -184,8 +185,11 @@ Please ensure the output is accurate and well-formatted according to the given e
 
             output_filename = f"{file.split('.')[0]}.json"
 
-            with open(f"json/{output_filename}", "w") as f:
-                f.write(response.choices[0].message.content)
+            with open(f"json/{output_filename}", "w") as f_out:
+                f_out.write(response.choices[0].message.content)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        executor.map(process_file, files)
 
 
 def main():
