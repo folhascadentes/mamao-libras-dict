@@ -3,7 +3,7 @@ import os
 from PIL import Image
 import boto3
 import fitz
-import pytesseract
+from openai import OpenAI
 
 # Utils
 
@@ -76,7 +76,35 @@ def imgs_to_txt(image_path):
 
 
 def raw_txt_to_formatted_txt(raw_txt):
-    pass
+    client = OpenAI()
+    system = """I have extracted text from various documents using OCR. The text is currently in a series of lines without proper paragraph formatting. Please format these lines into well-structured paragraphs."""
+
+    files = sorted(os.listdir(raw_txt))
+
+    for file in files[:3]:
+        with open(f"{raw_txt}/{file}", "r") as f:
+            text = f.read()
+
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system,
+                    },
+                    {
+                        "role": "user",
+                        "content": text,
+                    },
+                ],
+                temperature=0.0,
+                top_p=1,
+            )
+
+            output_filename = raw_txt.split("/")[-1]
+
+            with open(f"texts/{output_filename}", "w") as f:
+                f.write(response.choices[0].message.content)
 
 
 def formatted_txt_to_json():
@@ -84,9 +112,9 @@ def formatted_txt_to_json():
 
 
 def main():
-    # pdfs_to_imgs("book")
+    pdfs_to_imgs("book")
     imgs_to_txt("images")
-    raw_txt_to_formatted_txt("")
+    raw_txt_to_formatted_txt("raw_texts")
     formatted_txt_to_json()
 
 
