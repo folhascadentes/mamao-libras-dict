@@ -81,7 +81,7 @@ def raw_txt_to_formatted_txt(raw_txt):
 
     files = sorted(os.listdir(raw_txt))
 
-    for file in files[:3]:
+    for file in files[0:5]:
         with open(f"{raw_txt}/{file}", "r") as f:
             text = f.read()
 
@@ -101,21 +101,63 @@ def raw_txt_to_formatted_txt(raw_txt):
                 top_p=1,
             )
 
-            output_filename = raw_txt.split("/")[-1]
-
-            with open(f"texts/{output_filename}", "w") as f:
+            with open(f"texts/{file}", "w") as f:
                 f.write(response.choices[0].message.content)
 
 
-def formatted_txt_to_json():
-    pass
+def formatted_txt_to_json(txt):
+    client = OpenAI()
+    system = """
+Process the provided text excerpts to create a structured JSON object. Each entry in the JSON should represent a sign from Brazilian Sign Language (Libras), as described in the text. For each entry, the key should be the name of the sign, and the value should be a detailed description of the sign, including its meaning and physical gesture. Exclude any text that is not directly related to the description of the signs. Ensure that the JSON output is well-formatted and adheres to standard JSON syntax rules.
+
+Input Example:
+
+Text containing various descriptions of signs from the 'Dicionário da Língua de Sinais do Brasil: A Libras em suas mãos', excluding non-relevant details like author names and book titles.
+
+Expected Output:
+
+A structured JSON object where each key-value pair represents a sign and its description, as per the input provided. For instance:
+
+{
+    "SignName1": "Description of SignName1...",
+    "SignName2": "Description of SignName2...",
+    // ... other sign descriptions ...
+}
+
+Please ensure the output is accurate and well-formatted according to the given example and standard JSON syntax.
+"""
+    files = sorted(os.listdir(txt))
+
+    for file in files[0:5]:
+        with open(f"{txt}/{file}", "r") as f:
+            text = f.read()
+
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system,
+                    },
+                    {
+                        "role": "user",
+                        "content": text,
+                    },
+                ],
+                temperature=0.0,
+                top_p=1,
+            )
+
+            with open(f"json/{file}", "w") as f:
+                f.write(response.choices[0].message.content)
+
 
 
 def main():
     pdfs_to_imgs("book")
     imgs_to_txt("images")
     raw_txt_to_formatted_txt("raw_texts")
-    formatted_txt_to_json()
+    formatted_txt_to_json("texts")
 
 
 if __name__ == "__main__":
