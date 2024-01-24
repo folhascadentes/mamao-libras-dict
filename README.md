@@ -2,6 +2,13 @@
 
 Project to extract information of Libras signs from "Dicionário da Língua de Sinais do Brasil: a Libras em Suas Mãos"
 
+## Depndencies
+
+- Python 3.8
+- Amazon SDK Environment Variables
+- OpenAI Environment Variables
+
+
 ## Example of output of each pipeline
 
 ### Book
