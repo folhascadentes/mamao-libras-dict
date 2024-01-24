@@ -148,7 +148,9 @@ Please ensure the output is accurate and well-formatted according to the given e
                 top_p=1,
             )
 
-            with open(f"json/{file}", "w") as f:
+            output_filename = f"{file.split('.')[0]}.json"
+
+            with open(f"json/{output_filename}", "w") as f:
                 f.write(response.choices[0].message.content)
 
 
