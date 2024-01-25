@@ -165,3 +165,4 @@ images/
 raw_texts/
 texts/
 json/
+*.out
