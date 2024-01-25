@@ -64,7 +64,8 @@ def pdfs_to_imgs(pdfs_dir):
 
     for file in files:
         file_path = f"{pdfs_dir}/{file}"
-        if not os.path.exists(file_path):
+        book_name = file.split(".")[0]
+        if not os.path.exists(f"images/{book_name}-000.png"):
             pdf_to_img(file_path)
 
 
@@ -136,7 +137,7 @@ def raw_txt_to_formatted_txt(raw_txt_dir):
             with open(file_path, "w") as f_out:
                 f_out.write(response.choices[0].message.content)
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
         executor.map(process_file, files)
 
 
