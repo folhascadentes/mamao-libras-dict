@@ -104,7 +104,7 @@ def imgs_to_txt(images_dir):
 
 def raw_txt_to_formatted_txt(raw_txt_dir):
     client = OpenAI()
-    system = """I have extracted text from various documents using OCR. The text is currently in a series of lines without proper paragraph formatting. Please format these lines into well-structured paragraphs."""
+    system = """I have extracted text from various documents using OCR. The text is currently in a series of lines without proper paragraph formatting. Please format these lines into well-structured paragraphs. When providing the output, please ensure to keep the text in its original language and maintain the exact lower and upper case formatting of the words as they are in the input."""
 
     files = sorted(os.listdir(raw_txt_dir))
 
