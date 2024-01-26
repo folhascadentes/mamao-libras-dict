@@ -141,77 +141,6 @@ def raw_txt_to_formatted_txt(raw_txt_dir):
         executor.map(process_file, files)
 
 
-def formatted_txt_to_json(txt_dir):
-    client = OpenAI()
-    system = """
-Process the provided text excerpts to create a structured JSON object. Each entry in the JSON should represent a sign from Brazilian Sign Language (Libras), as described in the text. For each entry, the key should be the name of the sign, and the value should be a detailed description of the sign, including its meaning and physical gesture. Exclude any text that is not directly related to the description of the signs. Ensure that the JSON output is well-formatted and adheres to standard JSON syntax rules.
-
-Input Example:
-
-Text containing various descriptions of signs from the 'Dicionário da Língua de Sinais do Brasil: A Libras em suas mãos', excluding non-relevant details like author names and book titles.
-
-Expected Output:
-
-A structured JSON object where each key-value pair represents a sign and its description, as per the input provided. For instance:
-
-{
-    "SignName1": "Description of SignName1...",
-    "SignName2": "Description of SignName2...",
-    // ... other sign descriptions ...
-}
-
-Please ensure the output is accurate and well-formatted according to the given example and standard JSON syntax.
-"""
-
-    files = sorted(os.listdir(txt_dir))
-
-    def process_file(file):
-        output_filename = f"{file.split('.')[0]}.json"
-        file_path = f"json/{output_filename}"
-
-        if os.path.exists(file_path):
-            return
-
-        with open(f"{txt_dir}/{file}", "r") as f:
-            text = f.read()
-
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system,
-                    },
-                    {
-                        "role": "user",
-                        "content": text,
-                    },
-                ],
-                temperature=0.0,
-                top_p=1,
-            )
-
-            with open(file_path, "w") as f_out:
-                f_out.write(response.choices[0].message.content)
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        executor.map(process_file, files)
-
-
-def merge_json_files(dir_path):
-    merged_data = {}
-
-    for file in sorted(os.listdir(dir_path)):
-        if file.endswith(".json"):
-            file_path = os.path.join(dir_path, file)
-
-            with open(file_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                merged_data.update(data)
-
-    return merged_data
-
-
 def main():
     print("Starting...")
     print("Converting PDFs to images...")
@@ -220,15 +149,6 @@ def main():
     imgs_to_txt("images")
     print("Converting raw text to formatted text...")
     raw_txt_to_formatted_txt("raw_texts")
-    print("Converting formatted text to JSON...")
-    formatted_txt_to_json("texts")
-    print("Merging JSON files...")
-
-    merged_data = merge_json_files("json")
-
-    print("Saving merged JSON file...")
-    with open("json/merged.json", "w", encoding="utf-8") as f:
-        json.dump(merged_data, f, ensure_ascii=False)
 
 
 if __name__ == "__main__":
