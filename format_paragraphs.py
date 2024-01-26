@@ -1,5 +1,33 @@
 from openai import OpenAI
+import os
+from concurrent.futures import ThreadPoolExecutor
 
+
+def process_signs(signs_batch, batch_index, client):
+    signs_to_process_txt = "\n".join(signs_batch)
+
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "system",
+                "content": system,
+            },
+            {
+                "role": "user",
+                "content": signs_to_process_txt,
+            },
+        ],
+        temperature=0.0,
+        top_p=1,
+    )
+
+    # Escreve a resposta em um arquivo JSON
+    with open(f"json/{batch_index}.json", "w") as f_out:
+        f_out.write(response.choices[0].message.content)
+
+
+client = OpenAI()
 system = """
 Ao analisar as descrições fornecidas de sinais da Língua Brasileira de Sinais (Libras), estruture as informações em um formato JSON seguindo estas orientações detalhadas para cada campo:
 
@@ -28,32 +56,23 @@ O retorno esperado deve seguir o formato:
 
 Segue a lista de sinais para análise:
 """
+signs = []
 
-client = OpenAI()
+file_path = "book_one.out"
 
-with open("book_one.out", "r") as f:
-    signs = f.read().split("\n")
-    jump = 5
+if os.path.isfile(file_path):
+    with open(file_path, "r") as f:
+        signs = f.read().split("\n")
 
-    for index in range(0, len(signs), jump):
-        signs_to_process = signs[index : index + jump]
-        signs_to_process_txt = "\n".join(signs_to_process)
+batch_size = 5
 
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {
-                    "role": "system",
-                    "content": system,
-                },
-                {
-                    "role": "user",
-                    "content": signs_to_process_txt,
-                },
-            ],
-            temperature=0.0,
-            top_p=1,
-        )
+os.makedirs("json", exist_ok=True)
 
-        with open(f"json/{index}.json", "w") as f_out:
-            f_out.write(response.choices[0].message.content)
+with ThreadPoolExecutor(max_workers=10) as executor:
+    for index in range(0, len(signs), batch_size):
+        json_file_path = f"json/{index}.json"
+
+        if not os.path.isfile(json_file_path):
+            executor.submit(
+                process_signs, signs[index : index + batch_size], index, client
+            )
