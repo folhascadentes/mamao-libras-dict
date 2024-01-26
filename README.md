@@ -8,6 +8,12 @@ Project to extract information of Libras signs from "Dicionário da Língua de S
 - Amazon SDK Environment Variables
 - OpenAI Environment Variables
 
+## Workflow
+
+- main.py
+- merge_texts.py (and manually clean and analyse the results)
+- format_paragraphs.py
+
 ## Example of output of each pipeline
 
 ### Book
