@@ -63,3 +63,21 @@ A, a: S. m. Primeira letra do alfabeto do Português antes do "b", e a primeira 
 À DIREITA (sinal usado em: CE, DF, PR, RS, SC, SP) (Inglês: to the right): loc. adv. lugar Para a direita, para o lado direito. Ex.: Se você virar à direita chegará à escola. (Mão em B horizontal, palma para frente, dedos inclinados para a direita. Movê-la ligeiramente para a direita.)
 ```
 
+
+### Observações
+
+Sinais como o seguinte, que não possuem dados dos parametros, como CM, PA, MOV e ORI, são ignorados nessa analise inicial
+
+```
+A FIM DE (3) : Mover a cabeça levemente para frente e piscar um dos olhos.
+
+[
+  {
+    "head": {
+      "orientation": "front_down",
+      "winky": true
+    }
+  }
+]
+
+```
