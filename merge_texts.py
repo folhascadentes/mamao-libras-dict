@@ -24,8 +24,9 @@ def is_first_word_upper(sentence):
 
 lines = []
 
-for file in sorted(os.listdir("texts")):
-    with open(f"texts/{file}", "r") as f:
+# clean header and page numbers
+for file in sorted(os.listdir("raw_texts")):
+    with open(f"raw_texts/{file}", "r") as f:
         for line in f.read().split("\n"):
             normalized_line = (
                 unicodedata.normalize("NFKD", line)
@@ -36,19 +37,56 @@ for file in sorted(os.listdir("texts")):
             if not detect_header(normalized_line) and len(normalized_line) > 3:
                 lines.append(line)
 
-processed_lines = []
 
-for index, line in enumerate(lines):
-    if index > 0 and (
-        "(" not in line
-        or ":" not in line
-        or (processed_lines[-1][-1] != ")" and processed_lines[-1][-1] != ".")
-    ):
-        processed_lines[-1] = processed_lines[-1] + " " + line
-    elif not is_first_word_upper(line):
-        processed_lines[-1] = processed_lines[-1] + " " + line
-    else:
-        processed_lines.append(line)
+# Merge lines
+text = list(" ".join(lines))
+line = ""
+buffer = ""
+hand_found = False
+lines_merged = []
 
-for line in processed_lines:
-    print(line)
+
+# Look for the "mão" pattern and the ) terminator to break line
+for c in text:
+    line += c
+    buffer += c
+    buffer = buffer[-4:]
+
+    if buffer == " mão" or buffer == " Mão" or buffer == "(Mão" or buffer == "(mão":
+        hand_found = True
+
+    if hand_found and (buffer[-2:] == ".)" or buffer[-2:] == ".)"):
+        lines_merged.append(line.strip())
+        hand_found = False
+        line = ""
+
+if line != "":
+    lines_merged.append(line)
+
+
+# Fix etimology content
+for index, line in enumerate(lines_merged):
+    parts = line.split()
+
+    if "etimologia" not in parts[0].lower().strip():
+        print(line, end="")
+
+    if "etimologia" in parts[0].lower().strip():
+        index = line.find("(sinal") or line.find("(usado")
+
+        if index != -1:
+            etymology_part = line[:index].split(".")
+            remaining_part = etymology_part[-1] + " " + line[index:]
+            etymology_part = ".".join(etymology_part[:-1]) + "."
+
+            print("", etymology_part)
+
+            if remaining_part.strip() != "":
+                print(remaining_part.strip(), end="")
+
+    elif index + 1 < len(lines_merged):
+        next_line = lines_merged[index + 1]
+        next_line_parts = next_line.split()
+
+        if "etimologia" not in next_line_parts[0].lower().strip():
+            print(next_line_parts[0].lower().strip())
