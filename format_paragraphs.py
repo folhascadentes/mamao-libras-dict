@@ -49,7 +49,9 @@ O retorno esperado deve seguir o formato:
     "parameters": "[Descrição Detalhada dos Parâmetros Físicos do Sinal]",
     "example": "[Exemplo de Uso]",
     "grammatical": "[Categoria Gramatical]",
-    "translation": "[Tradução para o Inglês]"
+    "translation": "[Tradução para o Inglês]",
+    "cl": "[Informação se é um classificador (CL)]",
+    "etimologia": "[Etimologia do Sinal]"
   },
   ...
 ]
