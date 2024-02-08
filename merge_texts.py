@@ -55,7 +55,7 @@ for c in text:
     if buffer == " mão" or buffer == " Mão" or buffer == "(Mão" or buffer == "(mão":
         hand_found = True
 
-    if hand_found and (buffer[-2:] == ".)" or buffer[-2:] == ".)"):
+    if hand_found and (buffer[-2:] == ".)" or buffer[-2:] == ")."):
         lines_merged.append(line.strip())
         hand_found = False
         line = ""
