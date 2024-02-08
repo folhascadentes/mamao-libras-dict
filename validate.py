@@ -7,13 +7,13 @@ client = OpenAI()
 system = """Given a description of a Libras sign, extract the parameters and format in JSON."""
 
 # Load texts from a file
-with open("parameters5.out", "r") as file:
+with open("parameters.out", "r") as file:
     texts = file.read().split("\n")
 
 
 def make_api_call(text):
     response = client.chat.completions.create(
-        model="ft:gpt-3.5-turbo-1106:personal::8nZTEWft",
+        model="ft:gpt-3.5-turbo-1106:personal::8pdI51i3",
         messages=[
             {"role": "system", "content": system},
             {"role": "user", "content": text},
