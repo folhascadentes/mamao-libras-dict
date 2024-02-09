@@ -37,6 +37,8 @@ Ao analisar as descrições fornecidas de sinais da Língua Brasileira de Sinais
 4. "example": Inclua um exemplo de uso do sinal na comunicação.
 5. "grammatical": Identifique a categoria gramatical do sinal.
 6. "translation": Traduza o sinal para o inglês.
+7. "cl": Indique se o sinal é um classificador (CL).
+8. "etimologia": Forneça a etimologia do sinal, se disponível.
 
 Por favor, garanta precisão e clareza nas descrições, aderindo estritamente às especificações para cada campo. 
 
@@ -60,13 +62,13 @@ Segue a lista de sinais para análise:
 """
 signs = []
 
-file_path = "book_one.out"
+file_path = "book.out"
 
 if os.path.isfile(file_path):
     with open(file_path, "r") as f:
         signs = f.read().split("\n")
 
-batch_size = 5
+batch_size = 1
 
 os.makedirs("json", exist_ok=True)
 
