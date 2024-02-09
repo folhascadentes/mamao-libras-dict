@@ -103,52 +103,12 @@ def imgs_to_txt(images_dir):
         executor.map(process_image, images)
 
 
-def raw_txt_to_formatted_txt(raw_txt_dir):
-    client = OpenAI()
-    system = """I have extracted text from various documents using OCR. The text is currently in a series of lines without proper paragraph formatting. Please format these lines into well-structured paragraphs. When providing the output, please ensure to keep the text in its original language and maintain the exact lower and upper case formatting of the words as they are in the input."""
-
-    files = sorted(os.listdir(raw_txt_dir))
-
-    def process_file(file):
-        file_path = f"texts/{file}"
-
-        if os.path.exists(file_path):
-            return
-
-        with open(f"{raw_txt_dir}/{file}", "r") as f:
-            text = f.read()
-
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system,
-                    },
-                    {
-                        "role": "user",
-                        "content": text,
-                    },
-                ],
-                temperature=0.0,
-                top_p=1,
-            )
-
-            with open(file_path, "w") as f_out:
-                f_out.write(response.choices[0].message.content)
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
-        executor.map(process_file, files)
-
-
 def main():
     print("Starting...")
     print("Converting PDFs to images...")
     pdfs_to_imgs("book")
     print("Converting images to text...")
     imgs_to_txt("images")
-    print("Converting raw text to formatted text...")
-    raw_txt_to_formatted_txt("raw_texts")
 
 
 if __name__ == "__main__":
