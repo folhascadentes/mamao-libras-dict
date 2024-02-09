@@ -25,9 +25,12 @@ def is_first_word_upper(sentence):
 lines = []
 
 # clean header and page numbers
-for file in sorted(os.listdir("raw_texts")):
+for file in sorted(
+    os.listdir("raw_texts"),
+    key=lambda x: int(x.split("-")[0]) * 10000 + int(x.split("-")[1].split(".")[0]),
+):
     with open(f"raw_texts/{file}", "r") as f:
-        for line in f.read().split("\n"):
+        for line in f.read().split("\n")[1:]:
             normalized_line = (
                 unicodedata.normalize("NFKD", line)
                 .encode("ascii", "ignore")
