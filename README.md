@@ -12,7 +12,10 @@ Project to extract information of Libras signs from "Dicionário da Língua de S
 
 - main.py
 - merge_texts.py (and manually clean and analyse the results)
+- clean_merge_text.py
+- manual step to clean data output by clean_merge_text.py
 - format_paragraphs.py
+- extract_parameters.py
 
 ## Example of output of each pipeline
 
@@ -62,7 +65,6 @@ A, a: S. m. Primeira letra do alfabeto do Português antes do "b", e a primeira 
 
 À DIREITA (sinal usado em: CE, DF, PR, RS, SC, SP) (Inglês: to the right): loc. adv. lugar Para a direita, para o lado direito. Ex.: Se você virar à direita chegará à escola. (Mão em B horizontal, palma para frente, dedos inclinados para a direita. Movê-la ligeiramente para a direita.)
 ```
-
 
 ### Observações
 
