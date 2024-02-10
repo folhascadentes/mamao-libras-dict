@@ -1,7 +1,10 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from openai import OpenAI
 
+texts = []
 
-def split_text_in_lines(text):
+
+def split_text_in_lines(text, index):
     client = OpenAI()
     system = """
 Separa o texto em múltiplas linhas quando detectar um padrão semelhante ao seguinte
@@ -23,33 +26,30 @@ Faça o mesmo para o seguinte texto:
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {
-                "role": "system",
-                "content": system,
-            },
-            {
-                "role": "user",
-                "content": text,
-            },
+            {"role": "system", "content": system},
+            {"role": "user", "content": text},
         ],
         temperature=0.0,
         top_p=1,
     )
+    texts.append(response.choices[0].message.content)
 
-    return response.choices[0].message.content
+    with open(f"tmp/{index}.txt", "w") as f_out:
+        f_out.write(response.choices[0].message.content)
 
 
-count = 0
+lines = []
 
 with open("signs.out", "r") as f:
-    lines = f.read().split("\n")
-    processed_lines = []
-    for line in lines:
-        if line.count("(sina") < 2:
-            print(line)
-        else:
-            count += line.count("(sina") - 1
-            print(split_text_in_lines(line))
+    for line in f.read().split("\n"):
+        if line.count("(sina") > 1:
+            lines.append(line)
 
 
-print(count)
+with ThreadPoolExecutor(max_workers=10) as executor:
+    for index, line in enumerate(lines):
+        executor.submit(split_text_in_lines, line, index)
+
+
+for text in texts:
+    print(text)

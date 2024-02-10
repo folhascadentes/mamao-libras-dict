@@ -167,3 +167,4 @@ texts/
 json/
 *.out
 out/
+tmp/
