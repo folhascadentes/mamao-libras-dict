@@ -14,6 +14,8 @@ Project to extract information of Libras signs from "Dicionário da Língua de S
 - merge_texts.py (and manually clean and analyse the results)
 - clean_merge_text.py
 - manual step to clean data output by clean_merge_text.py
+- split_several_signs_inline.py
+- manual merge of the split results to the clean_merge_text.py result
 - format_paragraphs.py
 - extract_parameters.py
 
