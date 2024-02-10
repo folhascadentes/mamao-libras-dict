@@ -63,15 +63,3 @@ with open("merge.out", "r") as f:
                 if upper_count > 0 and upper_count / len(part) > 0.60:
                     print(" ".join(parts[index:]))
                     break
-
-# count = 0
-
-# with open("signs.out", "r") as f:
-#     lines = f.read().split("\n")
-#     processed_lines = []
-#     for line in lines:
-#         if line.count("sinal usado") > 1:
-#             print(line)
-#             count += line.count("sinal usado")
-
-# print(count)
