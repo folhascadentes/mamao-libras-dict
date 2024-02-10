@@ -1,17 +1,15 @@
 from openai import OpenAI
 import concurrent.futures
 
-# Assuming OpenAI is correctly initialized
 client = OpenAI()
 
 system = """Given a description of a Libras sign, extract the parameters and format in JSON."""
 
-# Load texts from a file
-with open("parameters.out", "r") as file:
+with open("signs_splited.out", "r") as file:
     texts = file.read().split("\n")
 
 
-def make_api_call(text):
+def make_api_call(text, index):
     response = client.chat.completions.create(
         model="ft:gpt-3.5-turbo-1106:personal::8pdI51i3",
         messages=[
@@ -21,18 +19,19 @@ def make_api_call(text):
         temperature=0.0,
         top_p=1,
     )
-    return text, response.choices[0].message.content
+    filename = f"tmp/response_{index}.txt"
+    with open(filename, "w") as file:
+        file.write(
+            text + "\n\n" + "```json\n" + response.choices[0].message.content + "\n```"
+        )
+    return filename
 
 
-# Use ThreadPoolExecutor to parallelize the API calls
 with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-    # Map texts to the executor
-    future_to_text = {executor.submit(make_api_call, text): text for text in texts}
+    future_to_text = {
+        executor.submit(make_api_call, text, index): text
+        for index, text in enumerate(texts)
+    }
     for future in concurrent.futures.as_completed(future_to_text):
-        text, response_content = future.result()
-        print(text)
-        print()
-        print("```json")
-        print(response_content)
-        print("```")
-        print()
+        filename = future.result()
+        print(f"Output written to {filename}")
